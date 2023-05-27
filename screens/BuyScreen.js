@@ -18,6 +18,8 @@ const PriceTable = () => {
             // ... repeat item3 to item20
             item20: { units: '', prices: '', results: '' },
         },
+        sumUnits : 0,
+        sumPrices : 0
     });
 
     const [focusedInputIndex, setFocusedInputIndex] = useState(null);
@@ -124,7 +126,8 @@ const PriceTable = () => {
 
             const priceHistory = history ? JSON.parse(history) : {};
             const newId = Date.now().toString(); // Generate a unique ID
-
+            tableData["sumUnits"] = unitTotal;
+            tableData["sumPrices"] = resultTotal;
             // Create a new entry in the priceHistory using the new ID
             priceHistory[newId] = tableData;
 
@@ -242,6 +245,7 @@ const PriceTable = () => {
                 <Button title="Remove" onPress={removeStorage} />
                 <Button title="tableData" onPress={tableDataLog} />
                 <Button title="priceTable" onPress={priceTableLog} />
+                <Button title="dd" onPress={() => console.log(tableData.sumUnits)} />
             </View>
             <Toast />
         </ScrollView>
