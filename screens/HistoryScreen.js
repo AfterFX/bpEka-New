@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Button, ScrollView } from 'react-native';
+import {View, Text, StyleSheet, FlatList, Button, ScrollView, TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DataTable } from 'react-native-paper';
+import { AntDesign } from '@expo/vector-icons';
 
 const HistoryScreen = () => {
     const [historyData, setHistoryData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [checkedItems, setCheckedItems] = useState({});
     const itemsPerPage = 3; // Number of items to show per page
 
     useEffect(() => {
@@ -15,6 +17,7 @@ const HistoryScreen = () => {
     const loadHistoryFromStorage = async () => {
         try {
             const history = await AsyncStorage.getItem('tableData');
+            const checkedItems = await AsyncStorage.getItem('checkedItems');
             if (history) {
                 const parsedHistory = JSON.parse(history);
                 const historyArray = Object.entries(parsedHistory).map(([id, data]) => ({
@@ -22,6 +25,10 @@ const HistoryScreen = () => {
                     data,
                 }));
                 setHistoryData(historyArray);
+
+                if (checkedItems) {
+                    setCheckedItems(JSON.parse(checkedItems));
+                }
             }
         } catch (error) {
             console.log('Error loading history from storage:', error);
@@ -46,6 +53,14 @@ const HistoryScreen = () => {
                 const parsedHistory = JSON.parse(history);
                 delete parsedHistory[id];
                 await AsyncStorage.setItem('tableData', JSON.stringify(parsedHistory));
+
+                // Remove the checked item from checkedItems
+                setCheckedItems(prevState => {
+                    const newState = { ...prevState };
+                    delete newState[id];
+                    return newState;
+                });
+
                 loadHistoryFromStorage(); // Refresh the history data after deletion
             }
         } catch (error) {
@@ -56,6 +71,18 @@ const HistoryScreen = () => {
 
     const renderItem = ({ item }) => {
         const date = new Date(Number(item.id));
+        const handleCheckboxToggle = () => {
+            setCheckedItems(prevState => {
+                const updatedState = {
+                    ...prevState,
+                    [item.id]: !prevState[item.id]
+                };
+                AsyncStorage.setItem('checkedItems', JSON.stringify(updatedState))
+                    .catch(error => console.log('Error saving checked items:', error));
+                return updatedState;
+            });
+        };
+        const isChecked = checkedItems[item.id] || false;
         return (
 
             <View>
@@ -69,7 +96,15 @@ const HistoryScreen = () => {
                             <Button title="Delete" onPress={() => handleDelete(item.id)} color="red" />
                         </DataTable.Cell>
                     </DataTable.Cell>
-                    <DataTable.Cell style={styles.cell}>{"rowName"}</DataTable.Cell>
+                    <DataTable.Cell style={styles.cell}>
+                        <TouchableOpacity onPress={handleCheckboxToggle}>
+                            <AntDesign
+                                name={isChecked ? 'delete' : 'delete'}
+                                size={24}
+                                color={isChecked ? 'green' : 'gray'}
+                            />
+                        </TouchableOpacity>
+                    </DataTable.Cell>
                 </DataTable.Row>
             </View>
 
