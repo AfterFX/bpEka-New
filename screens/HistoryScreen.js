@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {View, Text, StyleSheet, FlatList, Button, ScrollView, TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DataTable } from 'react-native-paper';
-import { AntDesign } from '@expo/vector-icons';
+import {Feather, Fontisto} from '@expo/vector-icons';
 
 const HistoryScreen = () => {
     const [historyData, setHistoryData] = useState([]);
@@ -93,15 +93,21 @@ const HistoryScreen = () => {
                     <DataTable.Cell style={styles.cell}>{date.getHours()}:{date.getMinutes()}:{date.getSeconds()}</DataTable.Cell>
                     <DataTable.Cell style={styles.cell}>
                         <DataTable.Cell style={styles.deleteCell}>
-                            <Button title="Delete" onPress={() => handleDelete(item.id)} color="red" />
+                            <TouchableOpacity onPress={() => handleDelete(item.id)}>
+                                <Fontisto
+                                    name={'trash'}
+                                    size={24}
+                                    color={'red'}
+                                />
+                            </TouchableOpacity>
                         </DataTable.Cell>
                     </DataTable.Cell>
                     <DataTable.Cell style={styles.cell}>
                         <TouchableOpacity onPress={handleCheckboxToggle}>
-                            <AntDesign
-                                name={isChecked ? 'delete' : 'delete'}
+                            <Feather
+                                name={isChecked ? 'check-square' : 'square'}
                                 size={24}
-                                color={isChecked ? 'green' : 'gray'}
+                                color={isChecked ? 'green' : 'red'}
                             />
                         </TouchableOpacity>
                     </DataTable.Cell>
