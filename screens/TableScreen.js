@@ -28,16 +28,16 @@ const PriceTable = () => {
         loadPricesFromStorage();
     }, []);
 
-    useEffect(() => {
-        // Save prices to storage when tableData changes
-        savePricesToStorage();
-    }, [tableData]);
+    // useEffect(() => {
+    //     // Save prices to storage when tableData changes
+    //     savePricesToStorage();
+    // }, [tableData]);
 
     const loadPricesFromStorage = async () => {
         try {
-            const prices = await AsyncStorage.getItem('tableData');
-            if (prices) {
-                const parsedPrices = JSON.parse(prices);
+            const priceData = await AsyncStorage.getItem('priceData');
+            if (priceData) {
+                const parsedPrices = JSON.parse(priceData);
                 setTableData(parsedPrices);
             }
         } catch (error) {
@@ -47,7 +47,7 @@ const PriceTable = () => {
 
     const savePricesToStorage = async () => {
         try {
-            await AsyncStorage.setItem('tableData', JSON.stringify(tableData));
+            await AsyncStorage.setItem('priceData', JSON.stringify(tableData));
         } catch (error) {
             console.log('Error saving prices to storage:', error);
         }
@@ -71,26 +71,30 @@ const PriceTable = () => {
         });
     };
 
-    const handleClearAllUnits = () => {
-        setTableData((prevState) => {
-            const newTableData = { ...prevState };
+    const handleClearAllUnits = (toast) => {
+        return () => {
+            setTableData((prevState) => {
+                const newTableData = { ...prevState };
 
-            Object.keys(newTableData).forEach((rowName) => {
-                Object.keys(newTableData[rowName]).forEach((item) => {
-                    newTableData[rowName][item].units = '';
-                    updateResult(item, newTableData[rowName][item].prices, newTableData[rowName][item].units, rowName);
+                Object.keys(newTableData).forEach((rowName) => {
+                    Object.keys(newTableData[rowName]).forEach((item) => {
+                        newTableData[rowName][item].units = '';
+                        updateResult(item, newTableData[rowName][item].prices, newTableData[rowName][item].units, rowName);
+                    });
                 });
+
+                return newTableData;
             });
 
-            return newTableData;
-        });
-
-        Toast.show({
-            type: 'success',
-            text1: 'Clear Completed',
-            visibilityTime: 2000,
-            autoHide: true,
-        });
+            if (toast) {
+                Toast.show({
+                    type: 'success',
+                    text1: toast,
+                    visibilityTime: 2000,
+                    autoHide: true,
+                });
+            }
+        };
     };
 
     const updateResult = (item, price, unit, rowName) => {
@@ -111,17 +115,51 @@ const PriceTable = () => {
 
     const handleTogglePricesInput = () => {
         setPricesInputEnabled(!pricesInputEnabled);
+        if(pricesInputEnabled) savePricesToStorage().then(handleClearAllUnits(false));
     };
 
-    const handleSave = () => {
-        savePricesToStorage().then(handleClearAllUnits);
-        Toast.show({
-            type: 'success',
-            text1: 'Prices Saved',
-            visibilityTime: 2000,
-            autoHide: true,
-        });
+    const handleSave = async () => {
+        try {
+            const history = await AsyncStorage.getItem('tableData');
+
+            const priceHistory = history ? JSON.parse(history) : {};
+            const newId = Date.now().toString(); // Generate a unique ID
+
+            // Create a new entry in the priceHistory using the new ID
+            priceHistory[newId] = tableData;
+
+            await AsyncStorage.setItem('tableData', JSON.stringify(priceHistory)).then(handleClearAllUnits(false));
+            Toast.show({
+                type: 'success',
+                text1: 'Saved Successfully',
+                visibilityTime: 2000,
+                autoHide: true,
+            });
+        } catch (error) {
+            console.log('Error saving prices to history:', error);
+        }
     };
+
+    const removeStorage = async () => {
+        try {
+            await AsyncStorage.removeItem('tableData')
+        } catch(e) {
+            // remove error
+        }
+
+        console.log('Done.')
+    }
+
+    const tableDataLog = async () => {
+        const history = await AsyncStorage.getItem('tableData');
+        console.log(JSON.parse(history))
+    }
+
+    const priceTableLog = async () => {
+        const history = await AsyncStorage.getItem('priceData');
+        console.log(JSON.parse(history))
+    }
+
 
     const renderRow = (rowName) => {
         const items = Object.keys(tableData[rowName]);
@@ -199,8 +237,11 @@ const PriceTable = () => {
                     title={pricesInputEnabled ? 'Disable Prices Input' : 'Enable Prices Input'}
                     onPress={handleTogglePricesInput}
                 />
-                <Button title="Clear All" onPress={handleClearAllUnits} />
+                <Button title="Clear All" onPress={handleClearAllUnits('Clear Completed1')} />
                 <Button title="Save" onPress={handleSave} />
+                <Button title="Remove" onPress={removeStorage} />
+                <Button title="tableData" onPress={tableDataLog} />
+                <Button title="priceTable" onPress={priceTableLog} />
             </View>
             <Toast />
         </ScrollView>
