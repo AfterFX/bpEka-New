@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-const TableScreen = () => {
+const HistoryScreen = () => {
     return (
         <View>
             <Text>Welcome to the Buy History Screen!</Text>
@@ -9,4 +9,4 @@ const TableScreen = () => {
     );
 };
 
-export default TableScreen;
+export default HistoryScreen;

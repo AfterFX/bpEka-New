@@ -3,19 +3,19 @@ import { View, Text, StyleSheet, Button } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
 const IndexScreen = ({ navigation }) => {
-    const goToBuyHistory = () => {
-        navigation.navigate('BuyHistory');
+    const goBuyScreen = () => {
+        navigation.navigate('BuyScreen');
     };
 
-    const goTableScreen = () => {
-        navigation.navigate('Table');
+    const goHistoryScreen = () => {
+        navigation.navigate('HistoryScreen');
     };
 
     return (
         <View style={styles.container}>
             <Text>Welcome to the Index Screen!</Text>
-            <Button title="Go to Buy page" onPress={goToBuyHistory} />
-            <Button title="Go to Table page" onPress={goTableScreen} />
+            <Button title="Go to Buy page" onPress={goBuyScreen} />
+            <Button title="Go to History page" onPress={goHistoryScreen} />
         </View>
     );
 };
