@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, StyleSheet, FlatList, Button, ScrollView, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, FlatList, Button, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DataTable } from 'react-native-paper';
-import {Feather, Fontisto} from '@expo/vector-icons';
+import { Feather, Fontisto, MaterialIcons } from '@expo/vector-icons';
 
 const HistoryScreen = () => {
     const [historyData, setHistoryData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [checkedItems, setCheckedItems] = useState({});
+    const [selectedRowData, setSelectedRowData] = useState(null); // Store the data of the selected row
+    const [isModalVisible, setIsModalVisible] = useState(false); // State to control the visibility of the modal
     const itemsPerPage = 3; // Number of items to show per page
 
     useEffect(() => {
@@ -37,14 +39,14 @@ const HistoryScreen = () => {
 
     const sumUnits = (item) => {
         const data = item.data;
-        return  Object.values(data).reduce((acc, category) => {
+        return Object.values(data).reduce((acc, category) => {
             const categorySum = Object.values(category).reduce((sum, item) => {
                 const units = parseInt(item.units) || 0;
                 return sum + units;
             }, 0);
             return acc + categorySum;
         }, 0);
-    }
+    };
 
     const handleDelete = async (id) => {
         try {
@@ -55,7 +57,7 @@ const HistoryScreen = () => {
                 await AsyncStorage.setItem('tableData', JSON.stringify(parsedHistory));
 
                 // Remove the checked item from checkedItems
-                setCheckedItems(prevState => {
+                setCheckedItems((prevState) => {
                     const newState = { ...prevState };
                     delete newState[id];
                     return newState;
@@ -68,37 +70,40 @@ const HistoryScreen = () => {
         }
     };
 
+    const handleRowPress = (rowData) => {
+        setSelectedRowData(rowData);
+        setIsModalVisible(true);
+    };
 
     const renderItem = ({ item }) => {
         const date = new Date(Number(item.id));
         const handleCheckboxToggle = () => {
-            setCheckedItems(prevState => {
+            setCheckedItems((prevState) => {
                 const updatedState = {
                     ...prevState,
-                    [item.id]: !prevState[item.id]
+                    [item.id]: !prevState[item.id],
                 };
-                AsyncStorage.setItem('checkedItems', JSON.stringify(updatedState))
-                    .catch(error => console.log('Error saving checked items:', error));
+                AsyncStorage.setItem('checkedItems', JSON.stringify(updatedState)).catch((error) =>
+                    console.log('Error saving checked items:', error)
+                );
                 return updatedState;
             });
         };
         const isChecked = checkedItems[item.id] || false;
         return (
-
             <View>
                 <DataTable.Row>
                     <DataTable.Cell style={styles.cell}>{item.id}</DataTable.Cell>
                     <DataTable.Cell style={styles.cell}>{item.data.sumUnits}</DataTable.Cell>
                     <DataTable.Cell style={styles.cell}>€{item.data.sumPrices}</DataTable.Cell>
-                    <DataTable.Cell style={styles.cell}>{date.getHours()}:{date.getMinutes()}:{date.getSeconds()}</DataTable.Cell>
+                    <DataTable.Cell style={styles.cell}>
+                        {date.getHours()}:{date.getMinutes()}:{date.getSeconds()}
+                    </DataTable.Cell>
+                    <DataTable.Cell  onPress={() => handleRowPress(item.data)} style={styles.cell}><MaterialIcons name="preview" size={24} color="green" /></DataTable.Cell>
                     <DataTable.Cell style={styles.cell}>
                         <DataTable.Cell style={styles.deleteCell}>
                             <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                                <Fontisto
-                                    name={'trash'}
-                                    size={24}
-                                    color={'red'}
-                                />
+                                <Fontisto name={'trash'} size={24} color={'red'} />
                             </TouchableOpacity>
                         </DataTable.Cell>
                     </DataTable.Cell>
@@ -113,7 +118,6 @@ const HistoryScreen = () => {
                     </DataTable.Cell>
                 </DataTable.Row>
             </View>
-
         );
     };
 
@@ -135,26 +139,23 @@ const HistoryScreen = () => {
     return (
         <View style={styles.container}>
             <Text>Welcome to the Buy History Screen!</Text>
-                <View>
-                    <DataTable style={styles.dataTable}>
-                        <DataTable.Header>
-                            <DataTable.Title style={styles.headerCell}>id</DataTable.Title>
-                            <DataTable.Title style={styles.headerCell}>Kiekis</DataTable.Title>
-                            <DataTable.Title style={styles.headerCell}>Suma</DataTable.Title>
-                            <DataTable.Title style={styles.headerCell}>Laikas</DataTable.Title>
-                            <DataTable.Title style={styles.headerCell}>Delete</DataTable.Title>
-                            <DataTable.Title style={styles.headerCell}>Čekis</DataTable.Title>
-                        </DataTable.Header>
-                        <View style={styles.historyItem}>
-                            {/*<Text style={styles.historyId}>{item.id}</Text>*/}
-                            <FlatList
-                                data={getPaginatedData()}
-                                renderItem={renderItem}
-                                keyExtractor={(item) => item.id}
-                            />
-                        </View>
-                    </DataTable>
-                </View>
+            <View>
+                <DataTable style={styles.dataTable}>
+                    <DataTable.Header>
+                        <DataTable.Title style={styles.headerCell}>id</DataTable.Title>
+                        <DataTable.Title style={styles.headerCell}>Kiekis</DataTable.Title>
+                        <DataTable.Title style={styles.headerCell}>Suma</DataTable.Title>
+                        <DataTable.Title style={styles.headerCell}>Laikas</DataTable.Title>
+                        <DataTable.Title style={styles.headerCell}> </DataTable.Title>
+                        <DataTable.Title style={styles.headerCell}>Delete</DataTable.Title>
+                        <DataTable.Title style={styles.headerCell}>Čekis</DataTable.Title>
+                    </DataTable.Header>
+                    <View style={styles.historyItem}>
+                        {/*<Text style={styles.historyId}>{item.id}</Text>*/}
+                        <FlatList data={getPaginatedData()} renderItem={renderItem} keyExtractor={(item) => item.id} />
+                    </View>
+                </DataTable>
+            </View>
             <View style={styles.pagination}>
                 {Array.from({ length: getPageCount() }, (_, index) => (
                     <Button
@@ -165,6 +166,21 @@ const HistoryScreen = () => {
                     />
                 ))}
             </View>
+
+            <Modal visible={isModalVisible} animationType="fade"  transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        {selectedRowData && (
+                            <>
+                                <Text style={styles.modalTitle}>Row Data</Text>
+                                <Text>ID: {JSON.stringify(selectedRowData)}</Text>
+                                {/* Render other row data properties */}
+                                <Button title="Close" onPress={() => setIsModalVisible(false)} />
+                            </>
+                        )}
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -178,10 +194,6 @@ const styles = StyleSheet.create({
     },
     historyItem: {
         marginBottom: 10,
-
-    },
-    historyId: {
-        fontWeight: 'bold',
     },
     dataTable: {
         marginTop: 10,
@@ -193,7 +205,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         backgroundColor: '#f2f2f2',
         flex: 1,
-        minWidth: 100,
         paddingHorizontal: 8,
         justifyContent: 'center',
         alignItems: 'center',
@@ -203,7 +214,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        minWidth: 100,
         paddingHorizontal: 8,
     },
     deleteCell: {
@@ -214,6 +224,26 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         marginTop: 10,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        elevation: 5,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    row: {
+        cursor: 'pointer',
     },
 });
 
