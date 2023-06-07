@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, Button, ScrollView, TouchableOpacity,
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DataTable } from 'react-native-paper';
 import { Feather, Fontisto, MaterialIcons } from '@expo/vector-icons';
+import ModalComponent from "./component/ModalComponent";
 
 const HistoryScreen = () => {
     const [historyData, setHistoryData] = useState([]);
@@ -99,13 +100,13 @@ const HistoryScreen = () => {
                     <DataTable.Cell style={styles.cell}>
                         {date.getHours()}:{date.getMinutes()}:{date.getSeconds()}
                     </DataTable.Cell>
-                    <DataTable.Cell  onPress={() => handleRowPress(item.data)} style={styles.cell}><MaterialIcons name="preview" size={24} color="green" /></DataTable.Cell>
+                    <DataTable.Cell onPress={() => handleRowPress(item.data)} style={styles.cell}>
+                        <MaterialIcons name="preview" size={24} color="green" />
+                    </DataTable.Cell>
                     <DataTable.Cell style={styles.cell}>
-                        <DataTable.Cell style={styles.deleteCell}>
-                            <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                                <Fontisto name={'trash'} size={24} color={'red'} />
-                            </TouchableOpacity>
-                        </DataTable.Cell>
+                        <TouchableOpacity onPress={() => handleDelete(item.id)}>
+                            <Fontisto name={'trash'} size={24} color={'red'} />
+                        </TouchableOpacity>
                     </DataTable.Cell>
                     <DataTable.Cell style={styles.cell}>
                         <TouchableOpacity onPress={handleCheckboxToggle}>
@@ -152,7 +153,11 @@ const HistoryScreen = () => {
                     </DataTable.Header>
                     <View style={styles.historyItem}>
                         {/*<Text style={styles.historyId}>{item.id}</Text>*/}
-                        <FlatList data={getPaginatedData()} renderItem={renderItem} keyExtractor={(item) => item.id} />
+                        <FlatList
+                            data={getPaginatedData()}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => item.id}
+                        />
                     </View>
                 </DataTable>
             </View>
@@ -167,20 +172,13 @@ const HistoryScreen = () => {
                 ))}
             </View>
 
-            <Modal visible={isModalVisible} animationType="fade"  transparent={true}>
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        {selectedRowData && (
-                            <>
-                                <Text style={styles.modalTitle}>Row Data</Text>
-                                <Text>ID: {JSON.stringify(selectedRowData)}</Text>
-                                {/* Render other row data properties */}
-                                <Button title="Close" onPress={() => setIsModalVisible(false)} />
-                            </>
-                        )}
-                    </View>
-                </View>
-            </Modal>
+            <View style={styles.container}>
+                <ModalComponent
+                    isModalVisible={isModalVisible}
+                    selectedRowData={selectedRowData}
+                    closeModal={() => setIsModalVisible(false)}
+                />
+            </View>
         </View>
     );
 };
