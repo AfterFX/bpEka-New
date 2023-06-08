@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, ScrollView, Button } from 'react-nat
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
+import Slider from '@react-native-community/slider';
 
 const PriceTable = () => {
     const [tableData, setTableData] = useState({
@@ -18,12 +19,13 @@ const PriceTable = () => {
             // ... repeat item3 to item20
             item20: { units: '', prices: '', results: '' },
         },
-        sumUnits : 0,
-        sumPrices : 0
+        sumUnits: 0,
+        sumPrices: 0
     });
 
     const [focusedInputIndex, setFocusedInputIndex] = useState(null);
     const [pricesInputEnabled, setPricesInputEnabled] = useState(false);
+    const [textSize, setTextSize] = useState(16);
 
     useEffect(() => {
         // Load prices from storage when component mounts
@@ -117,7 +119,7 @@ const PriceTable = () => {
 
     const handleTogglePricesInput = () => {
         setPricesInputEnabled(!pricesInputEnabled);
-        if(pricesInputEnabled) savePricesToStorage().then(handleClearAllUnits(false));
+        if (pricesInputEnabled) savePricesToStorage().then(handleClearAllUnits(false));
     };
 
     const handleSave = async () => {
@@ -145,23 +147,27 @@ const PriceTable = () => {
 
     const removeStorage = async () => {
         try {
-            await AsyncStorage.removeItem('tableData')
-        } catch(e) {
+            await AsyncStorage.removeItem('tableData');
+        } catch (e) {
             // remove error
         }
 
-        console.log('Done.')
-    }
+        console.log('Done.');
+    };
 
     const tableDataLog = async () => {
         const history = await AsyncStorage.getItem('tableData');
-        console.log(JSON.parse(history))
-    }
+        console.log(JSON.parse(history));
+    };
 
     const priceTableLog = async () => {
         const history = await AsyncStorage.getItem('priceData');
-        console.log(JSON.parse(history))
-    }
+        console.log(JSON.parse(history));
+    };
+
+    const handleTextSizeChange = (value) => {
+        setTextSize(value);
+    };
 
 
     const renderRow = (rowName) => {
@@ -229,6 +235,7 @@ const PriceTable = () => {
 
     return (
         <ScrollView>
+                <Text style={[styles.rowName, { fontSize: textSize }]}>Text to Resize</Text>
             <View style={styles.container}>
                 <View style={styles.leftColumn}>{renderRow('healthy')}</View>
                 <View style={styles.rightColumn}>{renderRow('repair')}</View>
@@ -246,6 +253,14 @@ const PriceTable = () => {
                 <Button title="tableData" onPress={tableDataLog} />
                 <Button title="priceTable" onPress={priceTableLog} />
                 <Button title="dd" onPress={() => console.log(tableData.sumUnits)} />
+                <Slider
+                    style={styles.slider}
+                    minimumValue={10}
+                    maximumValue={30}
+                    step={1}
+                    value={textSize}
+                    onValueChange={handleTextSizeChange}
+                />
             </View>
             <Toast />
         </ScrollView>
@@ -306,6 +321,10 @@ const styles = StyleSheet.create({
     footerText: {
         fontWeight: 'bold',
         marginBottom: 10,
+    },
+    slider: {
+        width: '80%',
+        marginTop: 10,
     },
 });
 
