@@ -186,6 +186,7 @@ const PriceTable = () => {
                                 focusedInputIndex?.inputType === 'units'
                                     ? styles.focusedInput
                                     : null,
+                                { fontSize: textSize }
                             ]}
                             keyboardType="numeric"
                             value={tableData[rowName][item].units}
@@ -202,6 +203,8 @@ const PriceTable = () => {
                                 focusedInputIndex?.inputType === 'prices'
                                     ? styles.focusedInput
                                     : null,
+                                { fontSize: textSize },
+                                pricesInputEnabled? {borderWidth: 4, borderColor: "red" }: {backgroundColor: "white"}
                             ]}
                             keyboardType="numeric"
                             value={tableData[rowName][item].prices}
@@ -210,7 +213,8 @@ const PriceTable = () => {
                             onBlur={handleInputBlur}
                             editable={pricesInputEnabled}
                         />
-                        <Text style={styles.result}>{tableData[rowName][item].results}</Text>
+                        {/*<Text style={[styles.result, { fontSize: textSize }]}>{tableData[rowName][item].results}</Text>*/}
+                        <TextInput style={[styles.result, { fontSize: textSize }]} editable={false}>{tableData[rowName][item].results}</TextInput>
                     </View>
                 ))}
             </View>
@@ -235,7 +239,6 @@ const PriceTable = () => {
 
     return (
         <ScrollView>
-                <Text style={[styles.rowName, { fontSize: textSize }]}>Text to Resize</Text>
             <View style={styles.container}>
                 <View style={styles.leftColumn}>{renderRow('healthy')}</View>
                 <View style={styles.rightColumn}>{renderRow('repair')}</View>
@@ -289,7 +292,7 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 5,
+        marginBottom: 0,
     },
     rowName: {
         fontSize: 16,
@@ -298,21 +301,28 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        marginRight: 10,
+        // marginRight: 10,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 5,
-        padding: 5,
+        padding: 0,
         textAlign: 'center',
+        color: "black",
+        fontWeight: "bold"
     },
     focusedInput: {
         borderColor: 'blue',
     },
     result: {
-        // flex: 1,
-        // marginLeft: 10,
-        fontWeight: 'bold',
-        textAlign: 'right',
+        flex: 1,
+        // marginRight: 10,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 0,
+        textAlign: 'center',
+        color: "black",
+        fontWeight: "bold"
     },
     footer: {
         marginTop: 20,
