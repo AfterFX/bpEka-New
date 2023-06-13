@@ -14,8 +14,8 @@ const AppNavigator = () => {
         <NavigationContainer>
             <Stack.Navigator>
                 <Stack.Screen name="Index" component={IndexScreen} />
-                <Stack.Screen name="BuyScreen" component={BuyScreen} />
-                <Stack.Screen name="HistoryScreen" component={HistoryScreen} />
+                <Stack.Screen name="Pirkimo puslapis" component={BuyScreen} />
+                <Stack.Screen name="Istorija" component={HistoryScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

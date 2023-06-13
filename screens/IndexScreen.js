@@ -4,11 +4,11 @@ import { AntDesign } from '@expo/vector-icons';
 
 const IndexScreen = ({ navigation }) => {
     const goBuyScreen = () => {
-        navigation.navigate('BuyScreen');
+        navigation.navigate('Pirkimo puslapis');
     };
 
     const goHistoryScreen = () => {
-        navigation.navigate('HistoryScreen');
+        navigation.navigate('Istorija');
     };
 
     return (
