@@ -123,7 +123,7 @@ const PriceTable = ({ navigation }) => {
     const handleUnitChange = (item, value, rowName) => {
         setTableData((prevState) => {
             const newTableData = { ...prevState };
-            newTableData[rowName][item].units = value;
+            newTableData[rowName][item].units = Number(value);
             updateResult(item, newTableData[rowName][item].prices, newTableData[rowName][item].units, rowName);
             return newTableData;
         });
@@ -167,7 +167,7 @@ const PriceTable = ({ navigation }) => {
     const updateResult = (item, price, unit, rowName) => {
         setTableData((prevState) => {
             const newTableData = { ...prevState };
-            newTableData[rowName][item].results = price * unit;
+            newTableData[rowName][item].results = Number((price * unit).toFixed(2));
             return newTableData;
         });
     };
@@ -264,7 +264,7 @@ const PriceTable = ({ navigation }) => {
                                 tableData[rowName][item].underline === true ? {borderBottomWidth: 2} : '',
                             ]}
                             keyboardType="numeric"
-                            value={tableData[rowName][item].units}
+                            value={(tableData[rowName][item].units).toString()}
                             onChangeText={(value) => handleUnitChange(item, value, rowName)}
                             onFocus={() => handleInputFocus(rowName, item, 'units')}
                             onBlur={handleInputBlur}
@@ -285,7 +285,7 @@ const PriceTable = ({ navigation }) => {
                                 tableData[rowName][item].underline === true ? {borderBottomWidth: 2} : '',
                             ]}
                             keyboardType="numeric"
-                            value={tableData[rowName][item].prices}
+                            value={(tableData[rowName][item].prices).toString()}
                             onChangeText={(value) => handlePriceChange(item, value, rowName)}
                             onFocus={() => handleInputFocus(rowName, item, 'prices')}
                             onBlur={handleInputBlur}
